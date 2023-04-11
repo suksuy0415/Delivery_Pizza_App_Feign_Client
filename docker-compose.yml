@@ -1,0 +1,73 @@
+version: "3.9"
+services:
+  mysqlservice:
+    image: mysql
+    ports:
+      - "3306:3306"
+    container_name: mysql-container
+    networks:
+      - springcloud-pizza-net
+    environment:
+      environment:
+      MYSQL_DATABASE: registered_users
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USERNAME: user
+      MYSQL_PASSWORD: root
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+  mongodbservice:
+    image: mongo:latest
+    container_name: mongo-container
+    networks:
+      - springcloud-pizza-net
+    ports:
+      - "27017:27017"
+  eurekaserver:
+    container_name: eureka-server
+    image: eureka-server
+    build: eurekaClient/
+    restart: always
+    networks:
+      - springcloud-pizza-net
+    ports:
+      - "8761:8761"
+    depends_on:
+      - mysqlservice
+      - mongodbservice
+  apigateway:
+    container_name: ApiGateway
+    image: cloud-api-service
+    build: APIClientSpringGateway/
+    networks:
+      - springcloud-pizza-net
+    ports:
+      - "9000:9000"
+    depends_on:
+      - eurekaserver
+    restart: always
+  userservice:
+    container_name: user-register-detail
+    build: UserRegister/
+    networks:
+      - springcloud-pizza-net
+    ports:
+      - "8087:8087"
+    depends_on:
+      - mysqlservice
+      - eurekaserver
+      - apigateway
+    restart: always
+  pizzaservice:
+    container_name: pizza-details
+    build: PizzaUserDetails/
+    networks:
+      - springcloud-pizza-net
+    ports:
+      - "8084:8084"
+    depends_on:
+      - mongodbservice
+      - eurekaserver
+      - apigateway
+    restart: always
+networks:
+  springcloud-pizza-net:
+    driver: bridge

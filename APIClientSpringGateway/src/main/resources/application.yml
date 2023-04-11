@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: ApiGateway
+  main:
+    web-application-type: reactive
+server:
+  port: 9000
+
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedHeaders:
+              - content-type
+            allowedMethods: "*"
+
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka
+      fetchRegistry: true
+      registerWithEureka: true
